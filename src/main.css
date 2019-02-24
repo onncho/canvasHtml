@@ -1,0 +1,20 @@
+
+
+.main {
+    display: flex;
+    flex-wrap: wrap; 
+    justify-content: space-around;
+    text-align: center;
+}
+
+.box {
+    /*
+    order: <integer>; default is 0
+    align-items: flex-end;
+    flex-grow: <number>;
+    flex-basis: <length> | auto;
+    align-self: auto | flex-start | flex-end | center | baseline | stretch;
+    */
+    flex-basis: auto;
+    border: 3px solid grey;
+  }
