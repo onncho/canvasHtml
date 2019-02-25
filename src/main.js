@@ -1,6 +1,5 @@
 let dataObject = [
   {
-    id: "",
     name: "",
     dataPoints: {
       x: "",
@@ -9,13 +8,14 @@ let dataObject = [
   }
 ];
 
-//https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH&tsyms=USD
-
-let coins = ["BTC","ETH", "DAX"];
+let coins = ["BTC", "ETH", "DAX"];
 const coinsData = [];
 let TimeInterval = 3000;
 let chart;
+let refreshIntervalId;
+let data = [];
 
+//https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH&tsyms=USD
 function contructURL(coins) {
   let SERVER_API = "https://min-api.cryptocompare.com/data/pricemulti?";
   let COINS_API = "fsyms=";
@@ -41,52 +41,54 @@ function fetchCoinsData(url) {
 }
 
 function mapDataToDataObject(serverData) {
-  //{"BTC":{"USD":4155.61},"ETH":{"USD":159.91}}
-
-  //coinsData = [];
   let newTime = Date.now();
 
   Object.keys(serverData).map(k => {
     let dataItem = {
-      id: k,
       name: k,
       dataPoints: {
         x: newTime,
-        y: serverData[k].USD
+        y: serverData[k].USD + Math.floor(Math.random() * 100)
       }
     };
 
-    var found = coinsData.find(function(element) {
-      return element.name == k;
-    });
-
-    coinsData.map(e => {
-      if (e.name == k) {
-        e.dataPoints.push(dataItem.dataPoints);
-      }
-    });
-    if (!found) {
+    if (!coinsData[k]) {
       dataItem.dataPoints = [dataItem.dataPoints];
-      coinsData.push(dataItem);
+      coinsData[k] = dataItem;
+    } else {
+      coinsData[k].dataPoints.push(dataItem.dataPoints);
     }
   });
 }
 
+// TODO: improve chart resolution for small changes
 function drawChart() {
-  var data = [];
-
-  for (var i = 0; i < coinsData.length; i++) {
-    data.push({
-      type: "splineArea",
-      xValueType: "dateTime",
-      lineThickness: 3,
-      //axisYType: "primary", // for align the y to right
-      showInLegend: true,
-      name: coinsData[i].name,
-      dataPoints: coinsData[i].dataPoints
+  for (var key in coinsData) {
+    //TODO: try the chart.options.data for update
+    var found = data.find(function(element) {
+      return element.name == key;
     });
+
+    if (!found) {
+      data.push({
+        type: "line",
+        xValueType: "dateTime",
+        lineThickness: 3,
+        showInLegend: true,
+        name: key,
+        dataPoints: coinsData[key].dataPoints
+      });
+    } else {
+      found.dataPoints = coinsData[key].dataPoints;
+    }
   }
 
+  console.log("DATA TO CHART", data);
+  chart.render();
+}
+
+function initChart() {
+  console.log("DATA TO CHART", data);
   chart = new CanvasJS.Chart("chartContainer", {
     backgroundColor: "rgba(0,0,0,0)",
     legend: {
@@ -98,85 +100,25 @@ function drawChart() {
     title: {
       text: "Coin Chart"
     },
-    data: [] //Later add datapoints,
-  });
-
-  data.map(item => {
-    chart.options.data.push(item);
-  });
-
-  chart.render();
-}
-
-function initChart() {
-  chart = new CanvasJS.Chart("chartContainer", {
-    backgroundColor: "rgba(0,0,0,0)",
-    legend: {
-      fontColor: "#FFF"
-    },
-    title: {
-      text: "Coin Chart"
-    },
-    data: [] //Later add datapoints,
+    data: data //Later add datapoints,
   });
 
   chart.render(); // Render Chart before using set method
 }
 
 function init() {
-  //initChart();
+  initChart();
   fetchCoinsData(contructURL(coins));
 }
 
-
-var updateChart = function (count) {
-
-	count = count || 1;
-
-	for (var j = 0; j < count; j++) {
-
-
-
-		yVal = yVal +  Math.round(5 + Math.random());
-		dps.push({
-			x: xVal,
-			y: yVal
-		});
-		xVal++;
-	}
-
-	if (dps.length > dataLength) {
-		dps.shift();
-	}
-
-	chart.render();
-};
-
-
+function stopInterval() {
+  alert("stopped");
+  clearInterval(refreshIntervalId);
+}
 
 window.onload = function() {
   try {
-    setInterval(init, 3000);
-
-    var dps = []; // dataPoints
-    var dataLength = 20; // number of dataPoints visible at any point
-
-    var chart2 = new CanvasJS.Chart("chartContainer2", {
-      title: {
-        text: "Dynamic Data"
-      },
-      axisY: {
-        includeZero: false
-      },
-      data: [
-        {
-          type: "line",
-          dataPoints: dps
-        }
-      ]
-    });
-    
-    updateChart(dataLength);
+    refreshIntervalId = setInterval(init, TimeInterval);
   } catch (error) {
     console.log(error);
   }
