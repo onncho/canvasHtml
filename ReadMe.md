@@ -32,4 +32,4 @@ npm test
 
 ## Authors
 
-* **Onn Hachmon** - *Initial work* - [PurpleBooth](https://github.com/onnha)
+* **Onn Hachmon** - *Initial work* - [PurpleBooth](https://github.com/onncho)
