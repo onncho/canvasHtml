@@ -4,7 +4,7 @@
 For start run in cmd workingFolder : npm test
 
 
-# Project Title
+# Crypto API to Canvas
 
 Html Canvas using CanvasJs and Crypro Api
 
@@ -32,4 +32,4 @@ npm test
 
 ## Authors
 
-* **Onn Hachmon** - *Initial work* - [PurpleBooth](https://github.com/onncho)
+* **Onn Hachmon** - *Initial work* - [Projects](https://github.com/onncho)
